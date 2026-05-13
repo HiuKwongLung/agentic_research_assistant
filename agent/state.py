@@ -1,6 +1,6 @@
 from typing import Annotated
 from langgraph.graph.message import add_messages
-from langchain.messages import BaseMessage
+from langchain_core.messages import BaseMessage
 from dataclasses import dataclass, field
 
 @dataclass
