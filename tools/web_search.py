@@ -1,5 +1,5 @@
 from langchain_core.tools import tool
-from dd import DDGS
+from ddgs import DDGS
 
 @tool
 def web_search(query: str) -> str:
