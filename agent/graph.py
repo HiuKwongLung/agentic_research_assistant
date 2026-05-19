@@ -1,13 +1,14 @@
 from langchain_ollama import ChatOllama
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
 from agent.state import AgentState
 from tools.web_search import web_search
 from tools.report_writer import write_report
+from rag.retriever import rag_search
 
 # --- Load model and bind tools ---
-TOOLS = [web_search, write_report]
+TOOLS = [web_search, write_report, rag_search]
 
 model = ChatOllama(model="qwen3:8b")
 model_with_tools = model.bind_tools(TOOLS)
@@ -59,9 +60,16 @@ def run_agent(topic:str) -> str:
     initial_state = AgentState(
         topic=topic,
         messages=[
+            SystemMessage(content=(
+                "You are a research assistant with access to two search tools: "
+                "web_search for current information from the internet, and "
+                "rag_search for a local IT helpdesk knowledge base. "
+                "Use whichever tools are relevant to the topic, then write a report."
+            )),
             HumanMessage(content=(
                 f"Please research the following topic: '{topic}'. "
-                f"Search the web for information, then write a report about what you found."
+                f"Use the available tools to gather information, "
+                f"then write a report about what you found."
             ))
         ]
     )
@@ -73,5 +81,5 @@ def run_agent(topic:str) -> str:
 
 # --- Test ---
 if __name__ == "__main__":
-    result = run_agent("What are the health effects of drinking too much coffee?")
+    result = run_agent("How do i reset a forgotten PIN?")
     print(result)
